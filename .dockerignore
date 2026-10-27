@@ -1,0 +1,57 @@
+# ─── Database dumps ────────────────────────────────
+*.pgc
+*.sql
+*.dump
+
+# ─── Secrets & environment ─────────────────────────
+.env
+.env.*
+*.key
+*.crt
+*.pem
+nginx/ssl/
+
+# ─── Python ────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.python-version
+*.egg-info/
+dist/
+build/
+
+# ─── Django ────────────────────────────────────────
+staticfiles/
+media/
+*.log
+local_settings.py
+
+# ─── Version control ───────────────────────────────
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ─── Docker ────────────────────────────────────────
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# ─── Nginx ─────────────────────────────────────────
+nginx.conf
+nginx.prod.conf
+
+# ─── OS / Editor ───────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.bak

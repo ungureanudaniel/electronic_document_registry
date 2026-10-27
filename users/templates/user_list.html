@@ -1,0 +1,71 @@
+{% extends 'documents/base.html' %}
+
+{% block title %}Administrare Utilizatori - Registrul electronic{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">Administrare Utilizatori</h1>
+        <a href="{% url 'dashboard' %}" class="text-sm bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition">Înapoi la Panou</a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 text-sm font-semibold">
+                    <th class="p-4">Utilizator</th>
+                    <th class="p-4">Rol</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-sm text-slate-700">
+                {% for u in users %}
+                <tr>
+                    <td class="p-4">
+                        <div class="font-medium text-slate-900">{{ u.full_name }}</div>
+                        <div class="text-slate-500 text-xs">{{ u.email }}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold 
+                            {% if u.role == 'ADMIN' %}bg-purple-100 text-purple-700
+                            {% elif u.role == 'MANAGER' %}bg-amber-100 text-amber-700
+                            {% else %}bg-blue-100 text-blue-700{% endif %}">
+                            {{ u.get_role_display }}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        {% if u.is_approved %}
+                            <span class="text-green-600 font-medium">Aprobat</span>
+                        {% else %}
+                            <span class="text-amber-600 font-medium">În așteptare</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 space-x-2">
+                        {% if not u.is_approved %}
+                            <form method="post" action="{% url 'approve_user' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Aprobă</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'revoke_user' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-amber-600 text-white px-3 py-1 rounded text-xs hover:bg-amber-700">Revocă</button>
+                            </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'delete_user' u.pk %}" class="inline" onsubmit="return confirm('Sigur doriți să ștergeți acest utilizator?');">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">Șterge</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-6 text-center text-slate-500">Nu a fost găsit niciun utilizator.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

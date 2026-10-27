@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Registrul electronic de corespondență{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Inclusion -->
+        {% include 'includes/sidebar.html' %}
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Navbar Inclusion -->
+            {% include 'includes/navbar.html' %}
+
+            <!-- Dynamic Content Block -->
+            <main class="flex-1 overflow-y-auto p-6">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+<script>
+</script>
+</html>

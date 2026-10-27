@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuVault - Electronic Document Registry</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for clean enterprise look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased flex flex-col">
+
+    <!-- TOP NAVIGATION / DEMO APP TAB BAR -->
+    <div class="bg-slate-900 text-white border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0 text-sm">
+        <div class="flex items-center space-x-3">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1 text-indigo-400"></i> Enterprise Prototype
+            </span>
+            <span class="text-slate-400 hidden sm:inline">|</span>
+            <span class="text-slate-300 font-medium hidden sm:inline">DocuVault EDR v2.4</span>
+        </div>
+        
+        <!-- Main Mode Switcher Tabs -->
+        <div class="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+            <button id="tab-btn-app" onclick="switchMainTab('app')" class="px-3 py-1 text-xs font-medium rounded-md transition-all bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
+                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Interactive App UI
+            </button>
+            <button id="tab-btn-templates" onclick="switchMainTab('templates')" class="px-3 py-1 text-xs font-medium rounded-md transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+                <i data-lucide="code-2" class="w-3.5 h-3.5"></i> Django Jinja2 Templates
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP VIEW (INTERACTIVE DASHBOARD) -->
+    <div id="main-view-app" class="flex-1 flex overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col shrink-0">
+            <!-- Brand header -->
+            <div class="h-16 flex items-center px-6 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="file-stack" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white tracking-wide text-base leading-none">DocuVault</h1>
+                        <span class="text-[10px] text-indigo-400 font-mono tracking-wider uppercase">Document Registry</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Nav Links -->
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                <div class="px-3 mb-2 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Main Menu</div>
+                
+                <a href="#" onclick="switchAppPage('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-indigo-600/10 text-indigo-400 border border-indigo-500/20">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#" onclick="switchAppPage('registry')" id="nav-registry" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        <span>Document Registry</span>
+                    </div>
+                    <span class="bg-indigo-900/60 text-indigo-300 text-xs px-2 py-0.5 rounded-full font-mono" id="doc-count-badge">148</span>
+                </a>
+
+                <a href="#" onclick="showToast('Incoming Queue: 3 pending documents')" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="inbox" class="w-4 h-4"></i>
+                        <span>Incoming Queue</span>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-full font-mono">3</span>
+                </a>
+
+                <div class="pt-4 px-3 mb-2 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Management</div>
+
+                <a href="#" onclick="showToast('Categories & Depts module')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i data-lucide="folder-tree" class="w-4 h-4"></i>
+                    <span>Categories & Depts</span>
+                </a>
+
+                <a href="#" onclick="showToast('Workflows module')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i data-lucide="git-merge" class="w-4 h-4"></i>
+                    <span>Approval Workflows</span>
+                </a>
+
+                <a href="#" onclick="showToast('Audit Trails module')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    <span>Audit Trail Log</span>
+                </a>
+
+                <a href="#" onclick="showToast('Settings opened')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>System Settings</span>
+                </a>
+            </nav>
+
+            <!-- Storage quota bar -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="bg-slate-800/80 rounded-lg p-3 text-xs">
+                    <div class="flex justify-between text-slate-400 mb-1">
+                        <span>Registry Storage</span>
+                        <span class="font-medium text-slate-200">68.4 GB / 100 GB</span>
+                    </div>
+                    <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-indigo-500 h-full rounded-full" style="width: 68%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Footer -->
+            <div class="p-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white ring-2 ring-indigo-400/30">
+                        JD
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-white">John Doe</div>
+                        <div class="text-[10px] text-slate-400">Chief Registrar (Admin)</div>
+                    </div>
+                </div>
+                <button title="Logout" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+            
+            <!-- HEADER BAR -->
+            <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm">
+                <!-- Search bar -->
+                <div class="w-96 relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(event)" placeholder="Search registry by Title, Reg #, Tag, Category..." class="w-full pl-9 pr-4 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+                    </button>
+
+                    <!-- Quick Action Buttons -->
+                    <button onclick="openUploadModal()" class="flex items-center gap-2 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium shadow-sm shadow-indigo-600/20 transition-all">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Upload Document</span>
+                    </button>
+
+                    <button onclick="showToast('Category Creator opened')" class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-colors">
+                        <i data-lucide="folder-plus" class="w-4 h-4 text-slate-500"></i>
+                        <span>New Category</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- DYNAMIC CONTENT CONTAINERS -->
+            <main class="flex-1 overflow-y-auto p-6" id="app-content-body">
+                
+                <!-- PAGE 1: DASHBOARD VIEW -->
+                <div id="page-dashboard" class="space-y-6">
+                    <!-- Welcome Header -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Executive Dashboard</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Overview of registered electronic files, pending compliance workflows, and system activity.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="showToast('Registry Report Exported (PDF)')" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium rounded-lg flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Card 1 -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Registered</span>
+                                <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                    <i data-lucide="files" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">1,482</span>
+                                <span class="text-xs font-semibold text-emerald-600 flex items-center">
+                                    <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +12%
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">42 documents added this month</p>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Approvals</span>
+                                <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                                    <i data-lucide="clock" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">18</span>
+                                <span class="text-xs font-semibold text-amber-600 flex items-center">
+                                    Needs Action
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">Avg turnaround: 1.4 days</p>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Storage Capacity</span>
+                                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                    <i data-lucide="database" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">68.4 GB</span>
+                                <span class="text-xs text-slate-500">/ 100 GB</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Audit Trail Logs</span>
+                                <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">100%</span>
+                                <span class="text-xs font-semibold text-emerald-600">Compliant</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">SHA-256 Checksums verified</p>
+                        </div>
+                    </div>
+
+                    <!-- Middle Section: Visual Breakdowns & Quick Upload Card -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Chart Bar Mockup -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-bold text-slate-900">Documents Registered by Category</h3>
+                                <span class="text-xs text-slate-400">YTD 2026</span>
+                            </div>
+                            
+                            <!-- Custom HTML Bar Visualization -->
+                            <div class="space-y-3 pt-2">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-medium text-slate-700">Financial Reports & Audits</span>
+                                        <span class="text-slate-500 font-mono">420 docs (35%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-600 h-full rounded-full" style="width: 35%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-medium text-slate-700">Legal Contracts & SLAs</span>
+                                        <span class="text-slate-500 font-mono">310 docs (26%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-500 h-full rounded-full" style="width: 26%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-medium text-slate-700">HR Policies & Handbooks</span>
+                                        <span class="text-slate-500 font-mono">240 docs (20%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-amber-500 h-full rounded-full" style="width: 20%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-medium text-slate-700">IT & Security Compliance</span>
+                                        <span class="text-slate-500 font-mono">180 docs (15%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-cyan-500 h-full rounded-full" style="width: 15%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-medium text-slate-700">Board Minutes & Governance</span>
+                                        <span class="text-slate-500 font-mono">132 docs (8%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-slate-400 h-full rounded-full" style="width: 8%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Drag Drop Upload Widget -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 mb-1">Quick File Registration</h3>
+                                <p class="text-xs text-slate-500 mb-4">Instantly index a single document into the draft registry queue.</p>
+                                
+                                <div onclick="openUploadModal()" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 rounded-xl p-6 text-center cursor-pointer transition-all group">
+                                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="text-xs font-semibold text-indigo-900">Click to upload file</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">PDF, DOCX, XLSX up to 50MB</div>
+                                </div>
+                            </div>
+
+                            <button onclick="switchAppPage('registry')" class="mt-4 w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors">
+                                <span>Browse Complete Registry</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Trail -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-slate-900">Recent Registry Audit Logs</h3>
+                            <a href="#" onclick="showToast('Full Audit Log Filtered')" class="text-xs font-medium text-indigo-600 hover:text-indigo-800">View All Audit Trail</a>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span class="font-mono text-slate-500">EDR-2026-094</span>
+                                    <span class="font-medium text-slate-800">Q3 Financial Audit Report</span>
+                                    <span class="text-slate-400">was updated to <span class="font-mono text-indigo-600">v1.2</span> by Sarah Connor</span>
+                                </div>
+                                <span class="text-slate-400 font-mono">10 mins ago</span>
+                            </div>
+
+                            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span class="font-mono text-slate-500">EDR-2026-091</span>
+                                    <span class="font-medium text-slate-800">Vendor SLA Agreement 2026</span>
+                                    <span class="text-slate-400">submitted for <span class="text-amber-600">Legal Review</span></span>
+                                </div>
+                                <span class="text-slate-400 font-mono">1 hour ago</span>
+                            </div>
+
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span class="font-mono text-slate-500">EDR-2026-088</span>
+                                    <span class="font-medium text-slate-800">Security Compliance Certification</span>
+                                    <span class="text-slate-400">downloaded by Auditor Mark R.</span>
+                                </div>
+                                <span class="text-slate-400 font-mono">3 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE 2: DOCUMENT REGISTRY LIST / TABLE VIEW -->
+                <div id="page-registry" class="hidden space-y-4">
+                    <!-- Section Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Electronic Document Registry</h2>
+                            <p class="text-xs text-slate-500">Central index of digitized enterprise records, metadata, and versioning.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openUploadModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium shadow-sm flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i> New Document
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Controls Bar -->
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-3">
+                        <!-- Table Search -->
+                        <div class="flex-1 min-w-[200px] relative">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="table-search" oninput="filterRegistryTable()" placeholder="Filter table records..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <!-- Status Filter -->
+                        <select id="filter-status" onchange="filterRegistryTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Pending Review">Pending Review</option>
+                            <option value="Draft">Draft</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+
+                        <!-- Category Filter -->
+                        <select id="filter-category" onchange="filterRegistryTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Categories</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Legal">Legal</option>
+                            <option value="HR">HR</option>
+                            <option value="Security">Security</option>
+                        </select>
+
+                        <!-- Department Filter -->
+                        <select id="filter-dept" onchange="filterRegistryTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Departments</option>
+                            <option value="Executive">Executive</option>
+                            <option value="Legal & Risk">Legal & Risk</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="IT Operations">IT Operations</option>
+                        </select>
+
+                        <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-slate-800 underline px-1">Reset</button>
+                    </div>
+
+                    <!-- Registry Main Table -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th class="py-3 px-4">Reg Number</th>
+                                        <th class="py-3 px-4">Document Title</th>
+                                        <th class="py-3 px-4">Category</th>
+                                        <th class="py-3 px-4">Department</th>
+                                        <th class="py-3 px-4">Ver</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4">Modified Date</th>
+                                        <th class="py-3 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="registry-table-body" class="divide-y divide-slate-100 text-xs text-slate-700">
+                                    <!-- Dynamic Rows rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                            <div>Showing <span id="showing-count" class="font-medium text-slate-800">5</span> of <span id="total-count" class="font-medium text-slate-800">5</span> entries</div>
+                            <div class="flex gap-1">
+                                <button class="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 disabled:opacity-50" disabled>Previous</button>
+                                <button class="px-2.5 py-1 bg-indigo-600 text-white rounded">1</button>
+                                <button class="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MAIN TEMPLATES VIEW (DJANGO JINJA2 CODE VIEW) -->
+    <div id="main-view-templates" class="hidden flex-1 flex overflow-hidden bg-slate-900 text-slate-200">
+        <!-- Template Files Sidebar -->
+        <aside class="w-64 border-r border-slate-800 p-4 shrink-0 flex flex-col">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Django Template Files</h3>
+            <div class="space-y-1 font-mono text-xs">
+                <button onclick="switchCodeTab('base')" id="code-btn-base" class="w-full text-left px-3 py-2 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-2">
+                    <i data-lucide="file-code" class="w-4 h-4"></i> base.html
+                </button>
+                <button onclick="switchCodeTab('sidebar')" id="code-btn-sidebar" class="w-full text-left px-3 py-2 rounded text-slate-400 hover:bg-slate-800 flex items-center gap-2">
+                    <i data-lucide="file-code" class="w-4 h-4"></i> sidebar.html
+                </button>
+                <button onclick="switchCodeTab('navbar')" id="code-btn-navbar" class="w-full text-left px-3 py-2 rounded text-slate-400 hover:bg-slate-800 flex items-center gap-2">
+                    <i data-lucide="file-code" class="w-4 h-4"></i> navbar.html
+                </button>
+                <button onclick="switchCodeTab('doclist')" id="code-btn-doclist" class="w-full text-left px-3 py-2 rounded text-slate-400 hover:bg-slate-800 flex items-center gap-2">
+                    <i data-lucide="file-code" class="w-4 h-4"></i> document_list.html
+                </button>
+            </div>
+            
+            <div class="mt-auto p-3 bg-slate-800/80 rounded-lg text-[11px] text-slate-400 space-y-2">
+                <div class="font-semibold text-slate-200">Django Integration Guide</div>
+                <p>Copy these modular templates into your Django app's <code>templates/</code> directory for clean template inheritance.</p>
+            </div>
+        </aside>
+
+        <!-- Code Viewer Main -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Code Title & Copy Header -->
+            <div class="h-12 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900">
+                <span id="code-filename" class="font-mono text-xs font-semibold text-indigo-400">templates/base.html</span>
+                <button onclick="copyCodeSnippet()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-medium flex items-center gap-1.5 transition-colors">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Template Code
+                </button>
+            </div>
+
+            <!-- Pre Code Display -->
+            <div class="flex-1 p-6 overflow-auto bg-slate-950 font-mono text-xs text-slate-300 leading-relaxed">
+                <pre id="code-display" class="whitespace-pre"></pre>
+            </div>
+        </main>
+    </div>
+
+    <!-- DOCUMENT PREVIEW MODAL / SLIDE-OVER -->
+    <div id="document-drawer" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex justify-end transition-opacity">
+        <div class="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col overflow-hidden transform transition-transform">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-indigo-100 text-indigo-700 rounded-xl">
+                        <i data-lucide="file-text" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span id="drawer-reg-no" class="text-xs font-mono font-semibold text-indigo-600">EDR-2026-094</span>
+                        <h3 id="drawer-title" class="text-base font-bold text-slate-900">Q3 Financial Audit Report</h3>
+                    </div>
+                </div>
+                <button onclick="closeDrawer()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Drawer Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Status & Action Strip -->
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-[11px] text-slate-500 uppercase font-semibold block">Current Status</span>
+                        <span id="drawer-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 mt-1">Active</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="showToast('Document File Downloaded')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Download File
+                        </button>
+                        <button onclick="showToast('New Version Upload Dialog Opened')" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> New Version
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Document Metadata Grid -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Registry Metadata</h4>
+                    <div class="grid grid-cols-2 gap-4 text-xs bg-white p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Category</span>
+                            <span id="drawer-category" class="font-medium text-slate-800">Finance</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Department</span>
+                            <span id="drawer-dept" class="font-medium text-slate-800">Executive</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Current Version</span>
+                            <span id="drawer-version" class="font-mono font-medium text-slate-800">v1.2</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Access Level</span>
+                            <span id="drawer-access" class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded inline-block">Confidential</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Registered By</span>
+                            <span id="drawer-owner" class="font-medium text-slate-800">Sarah Connor</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-0.5">Last Modified</span>
+                            <span id="drawer-date" class="font-medium text-slate-800">2026-10-15</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Version History Log -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Version Revision History</h4>
+                    <div class="space-y-2">
+                        <div class="p-3 bg-indigo-50/50 border border-indigo-100 rounded-lg text-xs flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-indigo-950 flex items-center gap-2">
+                                    <span>v1.2</span>
+                                    <span class="text-[10px] bg-indigo-200 text-indigo-800 px-1.5 py-0.2 rounded font-normal">Latest</span>
+                                </div>
+                                <div class="text-slate-500 mt-0.5">Adjusted Q3 liability statements per auditor review</div>
+                            </div>
+                            <div class="text-right text-[11px] text-slate-400">
+                                <div>2026-10-15</div>
+                                <div>Sarah C.</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs flex justify-between items-center text-slate-600">
+                            <div>
+                                <div class="font-semibold text-slate-800">v1.0</div>
+                                <div class="text-slate-500 mt-0.5">Initial registered upload</div>
+                            </div>
+                            <div class="text-right text-[11px] text-slate-400">
+                                <div>2026-10-01</div>
+                                <div>Sarah C.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Log Entries -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Document Access Audit Log</h4>
+                    <div class="bg-slate-900 text-slate-300 rounded-xl p-4 font-mono text-[11px] space-y-2">
+                        <div class="flex justify-between border-b border-slate-800 pb-1 text-slate-500">
+                            <span>TIMESTAMP</span>
+                            <span>ACTION / USER</span>
+                        </div>
+                        <div class="flex justify-between text-emerald-400">
+                            <span>2026-10-15 14:22 UTC</span>
+                            <span>[UPLOAD_VER_1.2] Sarah C.</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>2026-10-12 09:15 UTC</span>
+                            <span>[VIEWED] John Doe</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>2026-10-01 11:00 UTC</span>
+                            <span>[CREATED] Sarah C.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW DOCUMENT UPLOAD MODAL -->
+    <div id="upload-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <i data-lucide="file-plus" class="w-4 h-4 text-indigo-600"></i> Register New Electronic Document
+                </h3>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleUploadSubmit(event)" class="p-6 space-y-4">
+                <!-- Dropzone -->
+                <div class="border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 rounded-xl p-6 text-center cursor-pointer">
+                    <i data-lucide="cloud-upload" class="w-8 h-8 text-indigo-600 mx-auto mb-2"></i>
+                    <div class="text-xs font-semibold text-slate-700">Drag & drop document file here</div>
+                    <div class="text-[10px] text-slate-400 mt-1">Supports PDF, DOCX, XLSX (Max 50MB)</div>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Document Title *</label>
+                        <input type="text" id="new-doc-title" required placeholder="e.g., Annual Board Resolution 2026" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Category *</label>
+                            <select id="new-doc-category" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="Finance">Finance</option>
+                                <option value="Legal">Legal</option>
+                                <option value="HR">HR</option>
+                                <option value="Security">Security</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Department *</label>
+                            <select id="new-doc-dept" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="Executive">Executive</option>
+                                <option value="Legal & Risk">Legal & Risk</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="IT Operations">IT Operations</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Access Control Level</label>
+                        <select id="new-doc-access" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="Internal">Internal (All Employees)</option>
+                            <option value="Confidential">Confidential (Dept Only)</option>
+                            <option value="Restricted">Restricted (Executive Only)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700">Register Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-800 text-xs flex items-center gap-3 transition-all transform translate-y-20 opacity-0 z-50">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-message">Action completed successfully</span>
+    </div>
+
+    <!-- APPLICATION LOGIC SCRIPT -->
+    <script>
+        // MOCK DATASET
+        let documents = [
+            { id: 1, regNo: 'EDR-2026-094', title: 'Q3 Financial Audit Report', category: 'Finance', dept: 'Executive', version: 'v1.2', status: 'Active', modified: '2026-10-15', owner: 'Sarah Connor' },
+            { id: 2, regNo: 'EDR-2026-091', title: 'Vendor SLA Agreement 2026', category: 'Legal', dept: 'Legal & Risk', version: 'v1.0', status: 'Pending Review', modified: '2026-10-14', owner: 'Alex Rivera' },
+            { id: 3, regNo: 'EDR-2026-088', title: 'Employee Handbook v2.4', category: 'HR', dept: 'Human Resources', version: 'v2.4', status: 'Active', modified: '2026-09-28', owner: 'Elena Rostova' },
+            { id: 4, regNo: 'EDR-2026-085', title: 'Security Compliance Certification', category: 'Security', dept: 'IT Operations', version: 'v1.0', status: 'Active', modified: '2026-09-20', owner: 'David Vance' },
+            { id: 5, regNo: 'EDR-2026-079', title: 'Draft Board Resolution - Q4 Expansion', category: 'Legal', dept: 'Executive', version: 'v0.1', status: 'Draft', modified: '2026-10-18', owner: 'John Doe' }
+        ];
+
+        // DJANGO TEMPLATES CODE DATA
+        const templateCodeSnippets = {
+            base: `<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Electronic Document Registry{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Inclusion -->
+        {% include 'includes/sidebar.html' %}
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Navbar Inclusion -->
+            {% include 'includes/navbar.html' %}
+
+            <!-- Dynamic Content Block -->
+            <main class="flex-1 overflow-y-auto p-6">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>`,
+            sidebar: `<!-- templates/includes/sidebar.html -->
+<aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 border-b border-slate-800">
+        <h1 class="font-bold text-white tracking-wide text-base">DocuVault EDR</h1>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-1">
+        <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-indigo-400 bg-indigo-600/10">Dashboard</a>
+        <a href="{% url 'document_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-slate-800">Document Registry</a>
+    </nav>
+</aside>`,
+            navbar: `<!-- templates/includes/navbar.html -->
+<header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+    <div class="w-96">
+        <input type="text" placeholder="Search registry..." class="w-full px-3 py-1.5 bg-slate-100 rounded-lg text-xs">
+    </div>
+    <div class="flex items-center gap-3">
+        <span class="text-xs font-semibold">{{ request.user.username }}</span>
+    </div>
+</header>`,
+            doclist: `<!-- templates/documents/document_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Document Registry - EDR{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <h2 class="text-xl font-bold text-slate-900">Registered Documents</h2>
+    
+    <table class="w-full bg-white rounded-xl border border-slate-200 overflow-hidden text-xs text-left">
+        <thead class="bg-slate-50 border-b border-slate-200 uppercase text-slate-500 font-semibold">
+            <tr>
+                <th class="p-3">Reg #</th>
+                <th class="p-3">Title</th>
+                <th class="p-3">Category</th>
+                <th class="p-3">Status</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            {% for doc in documents %}
+            <tr class="hover:bg-slate-50">
+                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.reg_number }}</td>
+                <td class="p-3 font-semibold text-slate-900">{{ doc.title }}</td>
+                <td class="p-3">{{ doc.category.name }}</td>
+                <td class="p-3">
+                    <span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-800">{{ doc.status }}</span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="p-4 text-center text-slate-400">No documents registered yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}`
+        };
+
+        // INITIALIZATION
+        window.onload = function() {
+            lucide.createIcons();
+            renderRegistryTable(documents);
+            switchCodeTab('base');
+        };
+
+        // VIEW TAB SWITCHING
+        function switchMainTab(mode) {
+            const appView = document.getElementById('main-view-app');
+            const templatesView = document.getElementById('main-view-templates');
+            const btnApp = document.getElementById('tab-btn-app');
+            const btnTemplates = document.getElementById('tab-btn-templates');
+
+            if (mode === 'app') {
+                appView.classList.remove('hidden');
+                templatesView.classList.add('hidden');
+                btnApp.className = "px-3 py-1 text-xs font-medium rounded-md transition-all bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
+                btnTemplates.className = "px-3 py-1 text-xs font-medium rounded-md transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+            } else {
+                appView.classList.add('hidden');
+                templatesView.classList.remove('hidden');
+                btnTemplates.className = "px-3 py-1 text-xs font-medium rounded-md transition-all bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
+                btnApp.className = "px-3 py-1 text-xs font-medium rounded-md transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+            }
+        }
+
+        // APP PAGE NAVIGATION
+        function switchAppPage(page) {
+            const pDash = document.getElementById('page-dashboard');
+            const pReg = document.getElementById('page-registry');
+            const nDash = document.getElementById('nav-dashboard');
+            const nReg = document.getElementById('nav-registry');
+
+            if (page === 'dashboard') {
+                pDash.classList.remove('hidden');
+                pReg.classList.add('hidden');
+                nDash.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-indigo-600/10 text-indigo-400 border border-indigo-500/20";
+                nReg.className = "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors";
+            } else {
+                pDash.classList.add('hidden');
+                pReg.classList.remove('hidden');
+                nReg.className = "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium bg-indigo-600/10 text-indigo-400 border border-indigo-500/20";
+                nDash.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors";
+            }
+        }
+
+        // RENDER TABLE ROWS
+        function renderRegistryTable(data) {
+            const tbody = document.getElementById('registry-table-body');
+            tbody.innerHTML = '';
+
+            data.forEach(doc => {
+                let statusBadge = '';
+                if(doc.status === 'Active') statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-800">Active</span>`;
+                else if(doc.status === 'Pending Review') statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800">Pending Review</span>`;
+                else if(doc.status === 'Draft') statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">Draft</span>`;
+                else statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-100 text-rose-800">Archived</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors cursor-pointer";
+                tr.onclick = (e) => {
+                    if(!e.target.closest('button')) openDrawer(doc.id);
+                };
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-indigo-600 font-semibold">${doc.regNo}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${doc.title}</td>
+                    <td class="py-3 px-4">${doc.category}</td>
+                    <td class="py-3 px-4 text-slate-500">${doc.dept}</td>
+                    <td class="py-3 px-4 font-mono text-slate-600">${doc.version}</td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                    <td class="py-3 px-4 text-slate-500">${doc.modified}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openDrawer(${doc.id})" class="p-1 hover:bg-slate-200 rounded text-slate-500" title="View Details">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('showing-count').innerText = data.length;
+            document.getElementById('total-count').innerText = documents.length;
+            document.getElementById('doc-count-badge').innerText = documents.length;
+            lucide.createIcons();
+        }
+
+        // TABLE FILTERING LOGIC
+        function filterRegistryTable() {
+            const query = document.getElementById('table-search').value.toLowerCase();
+            const status = document.getElementById('filter-status').value;
+            const cat = document.getElementById('filter-category').value;
+            const dept = document.getElementById('filter-dept').value;
+
+            const filtered = documents.filter(doc => {
+                const matchesQuery = doc.title.toLowerCase().includes(query) || doc.regNo.toLowerCase().includes(query);
+                const matchesStatus = !status || doc.status === status;
+                const matchesCat = !cat || doc.category === cat;
+                const matchesDept = !dept || doc.dept === dept;
+                return matchesQuery && matchesStatus && matchesCat && matchesDept;
+            });
+
+            renderRegistryTable(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('table-search').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-dept').value = '';
+            renderRegistryTable(documents);
+        }
+
+        function handleGlobalSearch(e) {
+            const q = e.target.value;
+            switchAppPage('registry');
+            document.getElementById('table-search').value = q;
+            filterRegistryTable();
+        }
+
+        // DRAWER / MODAL FUNCTIONS
+        function openDrawer(docId) {
+            const doc = documents.find(d => d.id === docId) || documents[0];
+            document.getElementById('drawer-reg-no').innerText = doc.regNo;
+            document.getElementById('drawer-title').innerText = doc.title;
+            document.getElementById('drawer-category').innerText = doc.category;
+            document.getElementById('drawer-dept').innerText = doc.dept;
+            document.getElementById('drawer-version').innerText = doc.version;
+            document.getElementById('drawer-owner').innerText = doc.owner;
+            document.getElementById('drawer-date').innerText = doc.modified;
+            document.getElementById('drawer-status').innerText = doc.status;
+
+            document.getElementById('document-drawer').classList.remove('hidden');
+        }
+
+        function closeDrawer() {
+            document.getElementById('document-drawer').classList.add('hidden');
+        }
+
+        function openUploadModal() {
+            document.getElementById('upload-modal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('upload-modal').classList.add('hidden');
+        }
+
+        function handleUploadSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-doc-title').value;
+            const category = document.getElementById('new-doc-category').value;
+            const dept = document.getElementById('new-doc-dept').value;
+
+            const newDoc = {
+                id: documents.length + 1,
+                regNo: `EDR-2026-0${100 + documents.length}`,
+                title: title,
+                category: category,
+                dept: dept,
+                version: 'v1.0',
+                status: 'Draft',
+                modified: new Date().toISOString().split('T')[0],
+                owner: 'John Doe'
+            };
+
+            documents.unshift(newDoc);
+            renderRegistryTable(documents);
+            closeUploadModal();
+            showToast(`Document "${title}" registered in draft state!`);
+            switchAppPage('registry');
+        }
+
+        // CODE SWITCHER
+        let currentCodeKey = 'base';
+        function switchCodeTab(key) {
+            currentCodeKey = key;
+            const codeDisplay = document.getElementById('code-display');
+            const filenameDisplay = document.getElementById('code-filename');
+            
+            ['base', 'sidebar', 'navbar', 'doclist'].forEach(k => {
+                const btn = document.getElementById(`code-btn-${k}`);
+                if(k === key) {
+                    btn.className = "w-full text-left px-3 py-2 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-2";
+                } else {
+                    btn.className = "w-full text-left px-3 py-2 rounded text-slate-400 hover:bg-slate-800 flex items-center gap-2";
+                }
+            });
+
+            codeDisplay.textContent = templateCodeSnippets[key];
+            filenameDisplay.innerText = `templates/${key === 'doclist' ? 'documents/document_list.html' : (key === 'base' ? 'base.html' : 'includes/' + key + '.html')}`;
+        }
+
+        function copyCodeSnippet() {
+            const codeText = templateCodeSnippets[currentCodeKey];
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            showToast('Template code copied to clipboard!');
+        }
+
+        // TOAST NOTIFIER
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

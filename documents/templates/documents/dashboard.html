@@ -1,0 +1,241 @@
+{% extends 'documents/base.html' %}
+{% with active_page='dashboard' %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Top Bar Actions & Search -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="relative flex-1 max-w-md">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </span>
+            <input type="text" placeholder="Căutați în registru după titlu, nr. înregistrare, etichetă..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="p-2 text-slate-600 hover:text-slate-900 relative">
+                <span class="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full"></span>
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </button>
+            <a href="{% url 'document_upload' %}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-xs">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Încărcare document
+            </a>
+            <button class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Categorie nouă
+            </button>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Panou de control</h1>
+            <p class="text-sm text-slate-500 mt-1">Prezentare generală a fișierelor electronice înregistrate, fluxurilor de conformitate și a activității sistemului.</p>
+        </div>
+        <button class="inline-flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg text-sm font-medium transition self-start">
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Exportă raport
+        </button>
+    </div>
+
+    <!-- Top 4 Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Total înregistrate</span>
+                    <div class="text-3xl font-extrabold text-slate-900 mt-2">1.482</div>
+                </div>
+                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-xs">
+                <span class="text-emerald-600 font-semibold inline-flex items-center gap-0.5">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    +12%
+                </span>
+                <span class="text-slate-500">42 documente adăugate luna aceasta</span>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Aprobări în așteptare</span>
+                    <div class="text-3xl font-extrabold text-slate-900 mt-2">18 <span class="text-sm font-normal text-amber-600 ml-1">Necesită acțiune</span></div>
+                </div>
+                <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 text-xs text-slate-500">
+                Timp mediu: 1,4 zile
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Capacitate stocare</span>
+                    <div class="text-3xl font-extrabold text-slate-900 mt-2">68.4 GB <span class="text-xs font-medium text-slate-400">/ 100 GB</span></div>
+                </div>
+                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-blue-600 h-full rounded-full" style="width: 68.4%;"></div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Aici punem ceva statistica</span>
+                    <div class="text-3xl font-extrabold text-slate-900 mt-2">100% <span class="text-sm font-normal text-emerald-600 ml-1">Conform</span></div>
+                </div>
+                <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 text-xs text-slate-500">
+                Sume de control SHA-256 verificate
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Section: Categories & Quick Upload -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Documents Registered by Category -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-900">Documente înregistrate după categorie</h3>
+                <span class="text-xs font-medium text-slate-400">YTD 2026</span>
+            </div>
+
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-800">Rapoarte financiare și audituri</span>
+                        <span class="text-slate-500">420 doc. <span class="text-slate-400">(35%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-indigo-600 h-full rounded-full" style="width: 35%;"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-800">Contracte juridice</span>
+                        <span class="text-slate-500">310 doc. <span class="text-slate-400">(26%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-emerald-500 h-full rounded-full" style="width: 26%;"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-800">Documente privind resurse umane</span>
+                        <span class="text-slate-500">240 doc. <span class="text-slate-400">(20%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-amber-500 h-full rounded-full" style="width: 20%;"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-800">Alta categorie ...</span>
+                        <span class="text-slate-500">180 doc. <span class="text-slate-400">(15%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-cyan-500 h-full rounded-full" style="width: 15%;"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-800">Alta categorie ...</span>
+                        <span class="text-slate-500">132 doc. <span class="text-slate-400">(8%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-slate-500 h-full rounded-full" style="width: 8%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Quick File Registration -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Înregistrare rapidă fișier</h3>
+                <p class="text-xs text-slate-500 mt-1">Indexați instantaneu un document în coada de ciorne a registrului.</p>
+            </div>
+
+            <div class="border-2 border-dashed border-blue-200 bg-blue-50/50 rounded-xl p-8 text-center flex flex-col items-center justify-center space-y-3 cursor-pointer hover:bg-blue-50 transition">
+                <div class="p-3 bg-white text-blue-600 rounded-full shadow-xs">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-slate-800">Faceți clic pentru a încărca fișierul</p>
+                    <p class="text-xs text-slate-400 mt-0.5">PDF, DOCX, XLSX până la 50MB</p>
+                </div>
+            </div>
+
+            <button class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
+                Răsfoiți registrul complet 
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Section: Recent Registry Audit Logs -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900">Jurnal recent </h3>
+            <a href="#" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Vizualizați toate documentele înregistrate</a>
+        </div>
+        <div class="divide-y divide-slate-100">
+            <div class="p-4 px-6 flex items-center justify-between hover:bg-slate-50/50 transition">
+                <div class="flex items-center gap-4">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    <span class="font-mono text-xs font-semibold text-slate-600">94 / 26.10.2026</span>
+                    <span class="text-sm font-medium text-slate-800">Document 3 ...</span>
+                    <span class="text-xs text-slate-500">a fost actualizat la <span class="font-medium text-blue-600">v1.2</span> de Sarah Connor</span>
+                </div>
+                <span class="text-xs text-slate-400 font-medium">acum 10 minute</span>
+            </div>
+
+            <div class="p-4 px-6 flex items-center justify-between hover:bg-slate-50/50 transition">
+                <div class="flex items-center gap-4">
+                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                    <span class="font-mono text-xs font-semibold text-slate-600">93 / 26.10.2026</span>
+                    <span class="text-sm font-medium text-slate-800">Document 2 ...</span>
+                    <span class="text-xs text-slate-500">trimis pentru <span class="font-medium text-amber-600">Revizuire Juridică</span></span>
+                </div>
+                <span class="text-xs text-slate-400 font-medium">acum 1 oră</span>
+            </div>
+
+            <div class="p-4 px-6 flex items-center justify-between hover:bg-slate-50/50 transition">
+                <div class="flex items-center gap-4">
+                    <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                    <span class="font-mono text-xs font-semibold text-slate-600">92 / 26.10.2026</span>
+                    <span class="text-sm font-medium text-slate-800">Document 1 ...</span>
+                    <span class="text-xs text-slate-500">descărcat de Ion Popescu</span>
+                </div>
+                <span class="text-xs text-slate-400 font-medium">acum 3 ore</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% endwith %}
