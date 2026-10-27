@@ -7,6 +7,9 @@ set -e
 
 # run database migrations
 echo "Running database migrations..."
+python manage.py makemigrations users
+python manage.py migrate
+python manage.py makemigrations
 python manage.py migrate
 
 # collect static files
