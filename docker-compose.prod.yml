@@ -21,14 +21,6 @@ services:
       - media_volume:/app/media/
     depends_on:
       - web
-  db:
-    image: postgres:15-alpine
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - .env
-
 volumes:
   postgres_data_dev:
   static_volume:
