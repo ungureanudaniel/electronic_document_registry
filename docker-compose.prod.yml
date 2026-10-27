@@ -5,7 +5,7 @@ services:
     volumes:
       - .:/app
     environment:
-      - DEBUG=${DEBUG,True}
+      - DEBUG=${DEBUG:-True}
     env_file:
       - .env
     depends_on:
