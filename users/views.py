@@ -12,6 +12,7 @@ from axes.decorators import axes_dispatch
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 
+
 class UserListView(LoginRequiredMixin, ListView):
     model = CustomUser
     template_name = 'user_list.html'
@@ -22,7 +23,7 @@ class CustomSignupView(SuccessMessageMixin, CreateView):
     form_class = CustomUserCreationForm
     template_name = 'register.html'
     success_message = "Contul dvs. a fost creat! Vă rugăm așteptați acceptul administratorului de sistem. Veți primit un email de confirmare a contului."
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('dashboard')
 
     def get_success_url(self):
         return reverse_lazy('login')

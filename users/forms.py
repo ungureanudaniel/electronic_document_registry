@@ -106,28 +106,29 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
             user.assign_initial_group()  # Your custom method
-            self.send_admin_notification(user)
+            # self.send_admin_notification(user)
         return user
 
-    def send_admin_notification(self, user):
-        """Send email to admin about new user registration"""
-        subject = f'Înregistrare utilizator nou: {user.username}'
+    # def send_admin_notification(self, user):
+    #     """Send email to admin about new user registration"""
+    #     subject = f'Înregistrare utilizator nou: {user.username}'
         
-        # Email content for admin
-        message = render_to_string('emails/admin_notification.txt', {
-            'user': user,
-            'admin_url': settings.ADMIN_URL,
-        })
-        
-        admin_emails = ['danielungureanu531@gmail.com']
-        
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            admin_emails,
-            fail_silently=False,
-        )
+    #     # HTML email content for admin
+    #     html_message = render_to_string('signup/admin_notifications.html', {
+    #     'user': user,
+    #     'admin_url': settings.ADMIN_URL,
+    # })
+    #             # plain text fallback in case html does not work
+    #     plain_message = f"Un nou utilizator s-a înregistrat: {user.username} ({user.email}). Accesați panoul: {settings.ADMIN_URL}"
+    #     admin_emails = settings.ADMIN_EMAILS
+    #     send_mail(
+    #         subject,
+    #         plain_message,
+    #         settings.ADMIN_EMAILS,
+    #         admin_emails,
+    #         html_message=html_message,
+    #         fail_silently=False,
+    #     )
 
 # ==============user update form=============
 class UsernameEmailChangeForm(UserChangeForm):

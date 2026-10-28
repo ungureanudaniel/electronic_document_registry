@@ -72,12 +72,10 @@
                 <div class="space-y-1">
                     <label for="id_category" class="block text-sm font-medium text-slate-700">Categorie <span class="text-red-500">*</span></label>
                     <select name="category" id="id_category" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        {% for c in category %}
                         <option value="" disabled selected>Selectați o categorie</option>
-                        <option value="financial">Rapoarte financiare și audituri</option>
-                        <option value="legal">Contracte juridice și SLA-uri</option>
-                        <option value="hr">Politici HR și manuale</option>
-                        <option value="it">Conformitate IT și Securitate</option>
-                        <option value="governance">Procese-verbale și guvernanță</option>
+                        <option value="financial">{{ c }}</option>
+                        {% endfor %}
                     </select>
                     {% if form.category.errors %}<p class="text-xs text-red-600">{{ form.category.errors.0 }}</p>{% endif %}
                 </div>

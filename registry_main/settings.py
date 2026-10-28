@@ -114,7 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/users/login/'
-
+ADMIN_EMAILS = ['bucegipark@gmail.com']
+DEFAULT_FROM_EMAIL = 'contact@bucegipark.ro'
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 
