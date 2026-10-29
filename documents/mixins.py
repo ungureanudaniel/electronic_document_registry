@@ -12,5 +12,5 @@ class ApprovedRequiredMixin(UserPassesTestMixin):
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
-            return redirect('pending-approval')
+            return redirect('userlist')
         return redirect('login')

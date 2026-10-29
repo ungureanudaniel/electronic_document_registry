@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: gunicorn registry_main.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -10,6 +10,8 @@ services:
       - DEBUG=${DEBUG:-True}
     env_file:
       - .env
+    depends_on:
+      - db
   nginx:
     image: nginx:alpine
     restart: always
@@ -21,7 +23,22 @@ services:
       - media_volume:/app/media/
     depends_on:
       - web
+  db:
+    image: postgres:16-alpine
+    container_name: registry_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: registry_db
+      POSTGRES_USER: daniel
+      POSTGRES_PASSWORD: bucegi23#
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 volumes:
-  postgres_data_dev:
+  postgres_data:
   static_volume:
   media_volume:
+networks:
+  app-net:
+    driver: bridge

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from documents.mixins import ApprovedRequiredMixin
 from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
 from .forms import CustomUserCreationForm, CustomLoginForm
@@ -13,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 
 
-class UserListView(LoginRequiredMixin, ListView):
+class UserListView(ApprovedRequiredMixin, ListView):
     model = CustomUser
     template_name = 'user_list.html'
     context_object_name = 'users'

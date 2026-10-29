@@ -2,7 +2,7 @@ from django.db import models
 
 class DocCategory(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=True)
-    is_active = models.BooleanField(default=True, verbose_name="Activă")
+    is_active = models.BooleanField(default=False, verbose_name="Activă")
 
 
     class Meta:
