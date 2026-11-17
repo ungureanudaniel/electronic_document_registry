@@ -32,7 +32,7 @@ class Document(models.Model):
     timestamp = models.DateField(default=timezone.now)
     sender = models.CharField(max_length=150, unique=False, blank=True, null=True)
     sender_reg_nr = models.IntegerField(blank=True, null=True)
-    sender_reg_date = models.DateField(default=timezone.now, blank=True, null=True)
+    sender_reg_date = models.DateField(default=None, blank=True, null=True)
     job_title = models.CharField(max_length=100, blank=True)
     category = models.ForeignKey(DocCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="doc_category")
     doc_type = models.CharField(

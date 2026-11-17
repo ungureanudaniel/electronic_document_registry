@@ -28,35 +28,98 @@
             </a>
         </div>
     </div>
-    <table class="w-full bg-white rounded-xl border border-slate-200 overflow-hidden text-xs text-left">
-        <thead class="bg-slate-50 border-b border-slate-200 uppercase text-slate-500 font-semibold">
-            <tr>
-                <th class="p-3">Reg #</th>
-                <th class="p-3">Dată</th>
-                <th class="p-3">Tip Document</th>
-                <th class="p-3">Descriere</th>
-                <th class="p-3">Categorie</th>
-                <th class="p-3">Status</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-            {% for doc in documents %}
-            <tr class="hover:bg-slate-50">
-                {{ doc.reg_number }}, {{ doc.timestamp }}, {{ doc.description }}, {{ doc.category.name }}, {{ doc.doc_type }}, {{ doc.status }}
-                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.reg_number }}</td>
-                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.timestamp }}</td>
-                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.get_doc_type_display }}</td>
-                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.description }}</td>
-                <td class="p-3 font-mono font-medium text-indigo-600">{{ doc.category.name }}</td>
-                <td class="p-3 font-mono font-medium text-indigo-600">
-                    <span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-800">{{ doc.status }}</span>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" class="p-4 text-center text-slate-400">Nu există documente înregistrate încă.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <table class="w-full text-xs text-left">
+            <thead class="bg-slate-50 border-b border-slate-200 uppercase text-slate-500 font-semibold">
+                <tr>
+                    <th class="p-3">Reg #</th>
+                    <th class="p-3">Dată</th>
+                    <th class="p-3">Tip Document</th>
+                    <th class="p-3">Nr. extern</th>
+                    <th class="p-3">Dată externă</th>
+                    <th class="p-3">Descriere</th>
+                    <th class="p-3">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for doc in documents %}
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-mono font-bold text-indigo-600">{{ doc.reg_number }}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-600">{% if not doc.timestamp|date:"d.m.Y" %}-{% else %}{{ doc.timestamp|date:"d.m.Y" }}{% endif %}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-600">{{ doc.get_doc_type_display }}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-600">{{ doc.sender_reg_nr }}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-600">{{ doc.sender_reg_date|date:"d.m.Y" }}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-600">{{ doc.description }}</td>
+                    <td class="p-3 space-y-1">
+                        <!-- Sender Number + Date Conflict -->
+                        {% if doc.has_sender_conflict %}
+                            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700" title="Nr. și data de la emitent apar de mai multe ori">
+                                ⚠️ Nr./Dată emitent duplicat
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Similar Description -->
+                        {% if doc.has_similar_desc %}
+                            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800" title="Descriere foarte similară cu un alt document">
+                                ⚠️ Descriere Similară
+                            </div>
+                        {% endif %}
+
+                        <!-- Valid (Only if NO warnings apply) -->
+                        {% if not doc.has_sender_conflict and not doc.has_similar_desc %}
+                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                Valid
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="p-6 text-center text-slate-400">Nu există documente înregistrate încă.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        {% if is_paginated %}
+        <div class="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex flex-1 justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Anterior</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Următor</a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-xs text-slate-700">
+                        Afișare <span class="font-medium">{{ page_obj.start_index }}</span> - <span class="font-medium">{{ page_obj.end_index }}</span> din <span class="font-medium">{{ paginator.count }}</span> documente
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-md shadow-xs" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-slate-600 ring-1 ring-slate-300 ring-inset hover:bg-slate-50 font-medium">
+                                &larr; Anterior
+                            </a>
+                        {% endif %}
+                        
+                        <span class="relative inline-flex items-center px-4 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-300 ring-inset bg-slate-50">
+                            Pagina {{ page_obj.number }} din {{ page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-slate-600 ring-1 ring-slate-300 ring-inset hover:bg-slate-50 font-medium">
+                                Următor &rarr;
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 {% endwith %}

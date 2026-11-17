@@ -44,21 +44,33 @@
     <!-- Top 4 Metric Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     
-        <!-- Card 1: Total Registered -->
+        <!-- Card 1: Total Registered year -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
             <div class="flex justify-between items-center text-slate-500">
-                <span class="text-xs font-semibold tracking-wider uppercase">Total Înregistrate</span>
+                <span class="text-xs font-semibold tracking-wider uppercase">Total Înregistrate anul curent</span>
                 <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
             </div>
-            <div class="text-3xl font-bold text-slate-900">{{ total_documents_count }}</div>
+            <div class="text-3xl font-bold text-slate-900">{{ curr_year_doc_count }}</div>
             <p class="text-xs text-emerald-600 font-medium flex items-center gap-1">
-                <span>↑ {{ monthly_growth }}% față de luna trecută</span>
+                {% if yearly_growth > 0 %}<span style="color: #10B981;">↑ {{ yearly_growth }}% față de anul trecut</span>{% elif yearly_growth < 0 %}<span style="color: #EF4444;">↓ {{ yearly_growth }}% față de anul trecut</span>{% else %}<span>{{ yearly_growth }}% față de anul trecut</span>{% endif %}
             </p>
         </div>
-
-        <!-- Card 2: Incoming vs Outgoing Breakdown -->
+        <!-- Card 2: Total registered month -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-500">
+                <span class="text-xs font-semibold tracking-wider uppercase">Total Înregistrate luna curentă</span>
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-slate-900">{{ curr_month_doc_count }}</div>
+            <p class="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                {% if monthly_growth > 0 %}<span style="color: #10B981;">↑ {{ monthly_growth }}% față de luna trecută</span>{% elif monthly_growth < 0 %}<span style="color: #EF4444;">↓ {{ monthly_growth }}% față de luna trecută</span>{% else %}<span>{{ monthly_growth }}% față de luna trecută</span>{% endif %}
+            </p>
+        </div>
+        <!-- Card 3: Incoming vs Outgoing Breakdown -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
             <div class="flex justify-between items-center text-slate-500">
                 <span class="text-xs font-semibold tracking-wider uppercase">Flux Corespondență</span>
@@ -67,31 +79,11 @@
                 </div>
             </div>
             <div class="text-xl font-bold text-slate-900 flex gap-4 pt-1">
-                <div><span class="text-blue-600">{{ incoming_count }}</span> <span class="text-xs text-slate-400 font-normal">Intrare</span></div>
+                <div><span class="text-blue-600">{{ incoming_count }}</span> <span class="text-xs text-slate-400 font-normal">{% if incoming_count > 1 %}Intrări{% else %}Intrare{% endif %}</span></div>
                 <div class="text-slate-300">/</div>
-                <div><span class="text-purple-600">{{ outgoing_count }}</span> <span class="text-xs text-slate-400 font-normal">Ieșire</span></div>
+                <div><span class="text-purple-600">{{ outgoing_count }}</span> <span class="text-xs text-slate-400 font-normal">{% if outgoing_count > 1 %}Ieșiri{% else %}Ieșire{% endif %}</span></div>
             </div>
             <p class="text-xs text-slate-500">Raport tipuri înregistrate</p>
-        </div>
-
-        <!-- Card 3: Most Frequent Category -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-            <div class="flex justify-between items-center text-slate-500">
-                <span class="text-xs font-semibold tracking-wider uppercase">Cea Mai Frecventă Categorie</span>
-                <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                </div>
-            </div>
-            <div class="text-xl font-bold text-slate-900 truncate" title="{{ top_category.name|default:'N/A' }}">
-                {{ top_category.name|default:"Niciun document" }}
-            </div>
-            <p class="text-xs text-slate-500">
-                {% if top_category %}
-                    <span class="font-semibold text-slate-700">{{ top_category.total }}</span> documente înregistrate
-                {% else %}
-                    Fără activitate recentă
-                {% endif %}
-            </p>
         </div>
 
         <!-- Card 4: Duplicate Registration Numbers -->

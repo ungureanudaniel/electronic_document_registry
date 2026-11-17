@@ -1,29 +1,56 @@
 {% extends 'documents/base.html' %}
+
 {% block content %}
+
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-6">
+
     <h1 class="text-2xl font-bold text-slate-900">Management Categorii Documente</h1>
-    
+
+   
+
     <!-- Add Category Form -->
+
     <form method="post" class="bg-white p-6 rounded-xl border border-slate-200 flex gap-4">
+
         {% csrf_token %}
+
         <input type="text" name="name" required placeholder="Nume categorie nouă..." class="flex-1 px-3.5 py-2 border border-slate-300 rounded-lg text-sm">
+
         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Adaugă Categorie</button>
+
     </form>
 
+
+
     <!-- List Categories -->
+
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+
         <table class="w-full text-left text-sm text-slate-600">
+
             <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
+
                 <tr><th class="px-6 py-3">Nume Categorie</th></tr>
+
             </thead>
+
             <tbody class="divide-y divide-slate-200">
+
                 {% for cat in categories %}
+
                 <tr><td class="px-6 py-4 font-medium text-slate-900">{{ cat.name }}</td></tr>
+
                 {% empty %}
+
                 <tr><td class="px-6 py-4 text-center text-slate-400">Nu există categorii definite.</td></tr>
+
                 {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
 {% endblock %}

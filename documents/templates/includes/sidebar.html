@@ -4,7 +4,7 @@
     </div>
     <nav class="flex-1 px-3 py-4 space-y-1">
         <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'dashboard' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Dashboard</a>
-        <a href="{% url 'document_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'dashboard' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Registru de corespondență</a>
+        <a href="{% url 'document_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'document_list' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Registru de corespondență</a>
         {% if user.is_staff %}
         <div class="space-y-1">
             <!-- Dropdown Toggle Button -->
@@ -16,13 +16,13 @@
             </button>
 
             <div id="management-menu" class="hidden pl-4 space-y-1">
-                <a href="{% url 'category_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'categories' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                <a href="{% url 'category_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'category_management' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
                     • Management categorii documente
                 </a>
-                <a href="{% url 'document_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'documents_mgmt' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                <a href="{% url 'document_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'document_management' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
                     • Management documente
                 </a>
-                <a href="{% url 'userlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'users_mgmt' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                <a href="{% url 'userlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'user_list' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
                     • Management utilizatori
                 </a>
             </div>
@@ -53,18 +53,25 @@ function toggleManagementDropdown() {
     const menu = document.getElementById('management-menu');
     const chevron = document.getElementById('management-chevron');
     
-    menu.classList.toggle('hidden');
-    chevron.classList.toggle('rotate-180');
+    if (menu && chevron) {
+        menu.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+    }
 }
 
+// Auto-open dropdown on page load if the current page is part of management
 document.addEventListener('DOMContentLoaded', function() {
-    {% if active_page == 'categories' or active_page == 'documents_mgmt' %}
-    const menu = document.getElementById('management-menu');
-    const chevron = document.getElementById('management-chevron');
-    if (menu && chevron) {
-        menu.classList.remove('hidden');
-        chevron.classList.add('rotate-180');
+    const activePage = "{{ active_page }}";
+    
+    const managementPages = ['categories', 'document_mgmt', 'category_management', 'document_management', 'userlist', 'user_list'];
+    
+    if (managementPages.includes(activePage)) {
+        const menu = document.getElementById('management-menu');
+        const chevron = document.getElementById('management-chevron');
+        if (menu && chevron) {
+            menu.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+        }
     }
-    {% endif %}
 });
 </script>

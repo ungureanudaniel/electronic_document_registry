@@ -1,6 +1,10 @@
 from typing import Any
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from difflib import SequenceMatcher
+from django.db.models import Q, Count
+from django.utils import timezone
+from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DeleteView, ListView, CreateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -9,7 +13,6 @@ from categories.models import DocCategory
 from django.contrib import messages
 from documents.mixins import ApprovedRequiredMixin
 from .forms import DocumentForm
-from django.contrib.auth import authenticate
 
 def get_user_initials(user):
     """
@@ -25,6 +28,50 @@ def get_user_initials(user):
     initials = "".join(word[0].upper() for word in words)
     return initials
 
+def analyze_document_duplicates(documents):
+    """
+    Takes a list or queryset of documents, checks for sender conflicts 
+    and description similarities, attaches flags, and returns total flagged count.
+    """
+    docs_list = list(documents)
+    
+    # 1. Find sender number + date duplicates
+    sender_counts = {}
+    for doc in docs_list:
+        if doc.sender_reg_nr:
+            s_num = str(doc.sender_reg_nr).strip().lower()
+            s_date = doc.sender_reg_date.date() if hasattr(doc.sender_reg_date, 'date') else doc.sender_reg_date
+            key = (s_num, s_date)
+            sender_counts[key] = sender_counts.get(key, 0) + 1
+
+    # 2. Analyze descriptions for high similarity (> 85% match)
+    similar_pairs = set()
+    for i, doc1 in enumerate(docs_list):
+        for doc2 in docs_list[i+1:]:
+            if doc1.description and doc2.description:
+                similarity = SequenceMatcher(None, doc1.description.lower(), doc2.description.lower()).ratio()
+                if similarity > 0.85:
+                    similar_pairs.add(doc1.pk)
+                    similar_pairs.add(doc2.pk)
+
+    # 3. Attach flags and count total unique documents with warnings
+    flagged_documents_count = 0
+    for doc in docs_list:
+        doc.has_sender_conflict = False
+        if doc.sender_reg_nr:
+            s_num = str(doc.sender_reg_nr).strip().lower()
+            s_date = doc.sender_reg_date.date() if hasattr(doc.sender_reg_date, 'date') else doc.sender_reg_date
+            key = (s_num, s_date)
+            if sender_counts.get(key, 0) > 1:
+                doc.has_sender_conflict = True
+        
+        doc.has_similar_desc = doc.pk in similar_pairs
+
+        if doc.has_sender_conflict or doc.has_similar_desc:
+            flagged_documents_count += 1
+
+    return docs_list, flagged_documents_count
+
 
 class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
@@ -38,12 +85,29 @@ class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class DocumentListView(ApprovedRequiredMixin, ListView):
     model = Document
     template_name = 'documents/doc_list.html'
+    context_object_name = 'documents'
+    paginate_by = 20
+
+    def get_queryset(self):
+        # sort by registration year and number in descending order
+        return super().get_queryset().order_by('-reg_year', '-reg_number')
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['documents'] = Document.objects.all().order_by("-timestamp")
-        return context
+        all_docs = self.get_queryset()
+        annotated_docs, _ = analyze_document_duplicates(all_docs)
 
+        paginator = Paginator(annotated_docs, self.paginate_by)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = super().get_context_data(**kwargs)
+
+        context['documents'] = page_obj
+        context['page_obj'] = page_obj
+        context['is_paginated'] = page_obj.has_other_pages()
+        context['active_page'] = 'document_list'
+        return context
+        
 
 class Dashboard(ApprovedRequiredMixin, TemplateView):
     template_name = 'documents/dashboard.html'
@@ -64,14 +128,30 @@ class Dashboard(ApprovedRequiredMixin, TemplateView):
             current_month_count = Document.objects.filter(timestamp__gte=current_month_start).count()
             prev_month_count = Document.objects.filter(timestamp__gte=prev_month_start, timestamp__lt=current_month_start).count()
 
-            # Difference calculation
-            doc_difference = current_month_count - prev_month_count
+            stats = Document.objects.aggregate(
+                doc_count=Count('id'),
+                curr_year_doc_count=Count('id', filter=Q(timestamp__year=now.year)),
+                prev_year_doc_count=Count('id', filter=Q(timestamp__year=now.year - 1)),
+                current_month_count=Count('id', filter=Q(timestamp__gte=current_month_start)),
+                prev_month_count=Count('id', filter=Q(timestamp__gte=prev_month_start, timestamp__lt=current_month_start)),
+                incoming_count=Count('id', filter=Q(doc_type='IN')),
+                outgoing_count=Count('id', filter=Q(doc_type='OUT')),
+            )
+            context.update(stats)
 
-            context['curr_month_doc_count'] = current_month_count
-            context['prev_month_doc_count'] = prev_month_count
-            # context['doc_difference'] = doc_difference
-            context['doc_percent'] = (doc_difference/prev_month_count)*100 if prev_month_count > 0 else 0
+            curr_m = stats['current_month_count']
+            prev_m = stats['prev_month_count']
+
+            if prev_m > 0:
+                context['monthly_growth'] = round(((curr_m - prev_m) / prev_m) * 100, 1)
+            else:
+                context['monthly_growth'] = 100 if curr_m > 0 else 0
+
+            _, duplicate_count = analyze_document_duplicates(Document.objects.all())
+            context['duplicate_count'] = duplicate_count
             context['categories'] = DocCategory.objects.all()
+            context['active_page'] = 'dashboard'
+            print(context)
             return context
 
 
@@ -109,6 +189,7 @@ class CategoryManagementView(ApprovedRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = DocCategory.objects.all().order_by('name')
+        context['active_page'] = 'category_management'
         return context
 
 
@@ -122,17 +203,36 @@ class DocumentManagementView(ApprovedRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['documents'] = self.get_queryset()
+        context['active_page'] = 'document_management'
         return context
 
 
 class SecureDocumentDeleteView(AdminStaffRequiredMixin, DeleteView):
     template_name = 'management/document_delete.html'
+    model = Document
+    success_url = reverse_lazy('document_management')
+
+    def get_success_url(self):
+        return str(self.success_url) if self.success_url else '/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         document_id = self.kwargs.get('pk')
+        context['active_page'] = 'documents_management'
         context['document'] = Document.objects.get(pk=document_id)
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        password = request.POST.get('admin_password') or ""
+
+        if request.user.is_staff and request.user.check_password(password):
+            self.object.delete()
+            messages.success(request, "Documentul a fost șters cu succes.")
+            return redirect(self.get_success_url())
+        else:
+            messages.error(request, "Parola introdusă este incorectă. Documentul nu a fost șters.")
+            return self.render_to_response(self.get_context_data(object=self.object))
 
 
 class OutgoingLetterCreateView(CreateView):
