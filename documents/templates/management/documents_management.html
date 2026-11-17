@@ -1,0 +1,43 @@
+{% extends 'documents/base.html' %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-slate-900">Management Documente</h1>
+        <form method="get" class="flex gap-2">
+            <input type="text" name="q" value="{{ query }}" placeholder="Caută după nr sau conținut..." class="px-3.5 py-2 border border-slate-300 rounded-lg text-sm">
+            <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm">Caută</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                <tr>
+                    <th class="px-6 py-3">Nr. Înregistrare</th>
+                    <th class="px-6 py-3">Dată</th>
+                    <th class="px-6 py-3">Tip</th>
+                    <th class="px-6 py-3">Conținut</th>
+                    <th class="px-6 py-3 text-right">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+                {% for doc in documents %}
+                <tr>
+                    <td class="px-6 py-4 font-semibold text-slate-900">{{ doc.reg_number }}/{{ doc.reg_year|date:"Y" }}</td>
+                    <td class="px-6 py-4">{{ doc.timestamp|date:"d.m.Y" }}</td>
+                    <td class="px-6 py-4">{{ doc.get_doc_type_display }}</td>
+                    <td class="px-6 py-4 truncate max-w-xs">{{ doc.description }}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <!-- Link to edit if you have an update view -->
+                        <a href="#" class="text-blue-600 hover:underline">Editează</a>
+                        <a href="{% url 'document_secure_delete' doc.pk %}" class="text-red-600 hover:underline">Șterge</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Niciun document găsit.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

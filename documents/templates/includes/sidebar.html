@@ -6,7 +6,27 @@
         <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'dashboard' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Dashboard</a>
         <a href="{% url 'document_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'dashboard' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Registru de corespondență</a>
         {% if user.is_staff %}
-        <a href="{% url 'userlist' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if active_page == 'dashboard' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800{% endif %}">Management utilizatori</a>
+        <div class="space-y-1">
+            <!-- Dropdown Toggle Button -->
+            <button type="button" onclick="toggleManagementDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                <span class="flex items-center gap-3">Management</span>
+                <svg id="management-chevron" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div id="management-menu" class="hidden pl-4 space-y-1">
+                <a href="{% url 'category_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'categories' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                    • Management categorii documente
+                </a>
+                <a href="{% url 'document_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'documents_mgmt' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                    • Management documente
+                </a>
+                <a href="{% url 'userlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'users_mgmt' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                    • Management utilizatori
+                </a>
+            </div>
+        </div>
         {% endif %}
     </nav>
     <div class="p-4 border-t border-slate-800 bg-slate-950/50">
@@ -28,3 +48,23 @@
         {% endif %}
     </div>
 </aside>
+<script>
+function toggleManagementDropdown() {
+    const menu = document.getElementById('management-menu');
+    const chevron = document.getElementById('management-chevron');
+    
+    menu.classList.toggle('hidden');
+    chevron.classList.toggle('rotate-180');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    {% if active_page == 'categories' or active_page == 'documents_mgmt' %}
+    const menu = document.getElementById('management-menu');
+    const chevron = document.getElementById('management-chevron');
+    if (menu && chevron) {
+        menu.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+    }
+    {% endif %}
+});
+</script>

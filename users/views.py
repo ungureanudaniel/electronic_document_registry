@@ -34,6 +34,7 @@ class CustomLoginView(SuccessMessageMixin, LoginView):
     template_name = 'login.html'
     success_message = "Bine ați venit!"
     form_class = CustomLoginForm
+    
     # This decorator helps Axes track login attempts
     @method_decorator(axes_dispatch)
     def dispatch(self, request, *args, **kwargs):

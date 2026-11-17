@@ -1,24 +1,53 @@
 from django.db import models
-from categories.models import DocCategory, DocType
+from categories.models import DocCategory
 from django.utils import timezone
 
 
 class Sender(models.Model):
     name = models.CharField(max_length=255, unique=True)
-
+    
     def __str__(self):
         return self.name
+
+
+class DocumentType(models.TextChoices):
+    INCOMING = 'IN', 'Intrare'
+    OUTGOING = 'OUT', 'Ieșire'
+
+
+class Compartment(models.TextChoices):
+    RCEE = 'RCEE', 'Resp. Conștientizare'
+    STI = 'STI', 'Specialist IT'
+    BIOLOG = 'BIO', 'Biolog'
+    CONTABILITATE = 'CON', 'Contabil Șef'
+    DIRECTOR = 'DIR', 'Director'
+    PAZA = 'PAZA', 'Pază'
+    SSM = 'SSM', 'Securitate și Sănătate în Muncă'
+    MECANIZARE = 'MEC', 'Mecanizare'
 
 class Document(models.Model):
     reg_year = models.DateField()
     reg_number = models.IntegerField()
-    timestamp = models.DateField()
-    sender = models.CharField(max_length=150, unique=False, blank=True)
+    file = models.FileField(upload_to='documents/%Y/%m/', blank=True, null=True, verbose_name="Fișier Atașat")
+    timestamp = models.DateField(default=timezone.now)
+    sender = models.CharField(max_length=150, unique=False, blank=True, null=True)
+    sender_reg_nr = models.IntegerField(blank=True, null=True)
+    sender_reg_date = models.DateField(default=timezone.now, blank=True, null=True)
     job_title = models.CharField(max_length=100, blank=True)
     category = models.ForeignKey(DocCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="doc_category")
-    doc_type = models.ForeignKey(DocType, on_delete=models.SET_NULL, null=True, blank=True, related_name="doc_type")
+    doc_type = models.CharField(
+        max_length=3, 
+        choices=DocumentType.choices, 
+        default=DocumentType.INCOMING,
+        verbose_name="Tip Document"
+    )
     description = models.CharField(max_length=300, unique=False, blank=True)
-    responsible_compartment = models.CharField(max_length=100, blank=True)
+    responsible_compartment = models.CharField(
+        max_length=30, 
+        choices=Compartment.choices, 
+        default=Compartment.DIRECTOR,
+        verbose_name="Compartiment"
+    )
 
     class Meta:
         ordering = ['pk']
@@ -39,4 +68,4 @@ class Document(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"REG-{self.reg_year}-{self.reg_number:04d}"
+        return f"{self.reg_number:04d}/{self.reg_year}"

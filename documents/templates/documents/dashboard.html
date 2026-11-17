@@ -22,7 +22,7 @@
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Încărcare document
             </a>
-            <a href="{% url 'newcategory' %}" class="inline-flex items-center gap-2 bg-grey-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-xs">
+            <a href="{% url 'newcategory' %}" class="inline-flex items-center gap-2 border border-slate-200 hover:bg-slate-700 text-slate-700 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-xs">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Categorie nouă
             </a>
@@ -35,85 +35,85 @@
             <h1 class="text-2xl font-bold text-slate-900">Panou de control</h1>
             <p class="text-sm text-slate-500 mt-1">Prezentare generală a fișierelor electronice înregistrate, fluxurilor de conformitate și a activității sistemului.</p>
         </div>
-        <button class="inline-flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg text-sm font-medium transition self-start">
+        <button class="inline-flex items-center gap-2 border border-slate-200 hover:bg-slate-700 text-slate-700 hover:text-white px-3.5 py-2 rounded-lg text-sm font-medium transition self-start">
             <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Exportă raport
         </button>
     </div>
 
     <!-- Top 4 Metric Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Card 1 -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Total înregistrate</span>
-                    <div class="text-3xl font-extrabold text-slate-900 mt-2">{{ doc_count }}</div>
-                </div>
-                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    
+        <!-- Card 1: Total Registered -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-500">
+                <span class="text-xs font-semibold tracking-wider uppercase">Total Înregistrate</span>
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
             </div>
-            <div class="mt-4 flex items-center gap-2 text-xs">
-                <span class="text-emerald-600 font-semibold inline-flex items-center gap-0.5">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                    {% if doc_percent > 0 %}
-                    +{{ doc_percent }}%
-                    {% else %}
-                    -{{ doc_percent }}%
-                    {% endif %}
-                </span>
-                <span class="text-slate-500">{{ curr_month_count }} documente adăugate luna aceasta</span>
-            </div>
+            <div class="text-3xl font-bold text-slate-900">{{ total_documents_count }}</div>
+            <p class="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                <span>↑ {{ monthly_growth }}% față de luna trecută</span>
+            </p>
         </div>
 
-        <!-- Card 2 -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Aprobări în așteptare</span>
-                    <div class="text-3xl font-extrabold text-slate-900 mt-2">18 <span class="text-sm font-normal text-amber-600 ml-1">Necesită acțiune</span></div>
-                </div>
-                <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <!-- Card 2: Incoming vs Outgoing Breakdown -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-500">
+                <span class="text-xs font-semibold tracking-wider uppercase">Flux Corespondență</span>
+                <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                 </div>
             </div>
-            <div class="mt-4 text-xs text-slate-500">
-                Timp mediu: 1,4 zile
+            <div class="text-xl font-bold text-slate-900 flex gap-4 pt-1">
+                <div><span class="text-blue-600">{{ incoming_count }}</span> <span class="text-xs text-slate-400 font-normal">Intrare</span></div>
+                <div class="text-slate-300">/</div>
+                <div><span class="text-purple-600">{{ outgoing_count }}</span> <span class="text-xs text-slate-400 font-normal">Ieșire</span></div>
             </div>
+            <p class="text-xs text-slate-500">Raport tipuri înregistrate</p>
         </div>
 
-        <!-- Card 3 -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Capacitate stocare</span>
-                    <div class="text-3xl font-extrabold text-slate-900 mt-2">68.4 GB <span class="text-xs font-medium text-slate-400">/ 100 GB</span></div>
-                </div>
-                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        <!-- Card 3: Most Frequent Category -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-500">
+                <span class="text-xs font-semibold tracking-wider uppercase">Cea Mai Frecventă Categorie</span>
+                <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                 </div>
             </div>
-            <div class="mt-4 w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                <div class="bg-blue-600 h-full rounded-full" style="width: 68.4%;"></div>
+            <div class="text-xl font-bold text-slate-900 truncate" title="{{ top_category.name|default:'N/A' }}">
+                {{ top_category.name|default:"Niciun document" }}
             </div>
+            <p class="text-xs text-slate-500">
+                {% if top_category %}
+                    <span class="font-semibold text-slate-700">{{ top_category.total }}</span> documente înregistrate
+                {% else %}
+                    Fără activitate recentă
+                {% endif %}
+            </p>
         </div>
 
-        <!-- Card 4 -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative flex flex-col justify-between">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Aici punem ceva statistica</span>
-                    <div class="text-3xl font-extrabold text-slate-900 mt-2">100% <span class="text-sm font-normal text-emerald-600 ml-1">Conform</span></div>
-                </div>
-                <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <!-- Card 4: Duplicate Registration Numbers -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-500">
+                <span class="text-xs font-semibold tracking-wider uppercase">Nr. Duplicate / Conflicte</span>
+                <div class="p-2 {% if duplicate_count > 0 %}bg-red-50 text-red-600{% else %}bg-emerald-50 text-emerald-600{% endif %} rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
             </div>
-            <div class="mt-4 text-xs text-slate-500">
-                Sume de control SHA-256 verificate
+            <div class="text-3xl font-bold {% if duplicate_count > 0 %}text-red-600{% else %}text-slate-900{% endif %}">
+                {{ duplicate_count }}
             </div>
+            <p class="text-xs text-slate-500">
+                {% if duplicate_count > 0 %}
+                    <span class="font-semibold text-red-600">Necesită verificare</span> în registru
+                {% else %}
+                    Nicio duplicare detectată
+                {% endif %}
+            </p>
         </div>
+
     </div>
 
     <!-- Middle Section: Categories & Quick Upload -->
@@ -195,10 +195,10 @@
                 </div>
             </div>
 
-            <button class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
+            <a href="{% url 'document_list' %}" class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
                 Răsfoiți registrul complet 
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </button>
+            </a>
         </div>
     </div>
 

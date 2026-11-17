@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager["CustomUser"]):
     """
     Custom manager where email is the unique identifier
     for authentication instead of usernames.

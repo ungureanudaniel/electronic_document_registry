@@ -1,0 +1,47 @@
+{% extends 'documents/base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto my-8 bg-white p-12 border border-slate-200 shadow-lg rounded-xl print:shadow-none print:border-0 print:p-0">
+    <!-- Header Controls (Hidden on Print) -->
+    <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-200 print:hidden">
+        <a href="{% url 'dashboard' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900">
+            &larr; Înapoi la Dashboard
+        </a>
+        <button onclick="window.print()" class="px-4 py-2 bg-slate-900 text-white font-medium text-sm rounded-lg hover:bg-slate-800 transition">
+            Tipărește Adresa / Salvează PDF
+        </button>
+    </div>
+
+    <!-- Official Letter Header -->
+    <div class="space-y-6 text-slate-900 font-serif">
+        <!-- Registration Number -->
+        <div class="text-left font-semibold text-base">
+            Nr. {{ object.internal_ref_number }}
+        </div>
+
+        <!-- Recipient & Subject Block -->
+        <div class="space-y-3 pt-4">
+            <p class="text-base"><span class="font-bold">Către:</span> {{ object.recipient }}</p>
+            <p class="text-base"><span class="font-bold">Referitor la:</span> {{ object.subject }}</p>
+        </div>
+
+        <!-- Letter Body -->
+        <div class="py-6 min-h-[300px] text-justify leading-relaxed whitespace-pre-line text-base">
+            {{ object.content }}
+        </div>
+
+        <!-- Date & Signature Block -->
+        <div class="pt-8 flex justify-between items-end">
+            <div>
+                <p class="text-base"><span class="font-bold">Data:</span> {{ object.created_at|date:"d.m.Y" }}</p>
+            </div>
+            <div class="text-center space-y-1">
+                <p class="font-bold text-base">Cu stimă,</p>
+                <p class="text-sm font-medium">Director parc,</p>
+                <p class="font-bold text-base pt-2">Ing. Clementin Neguțescu</p>
+                <div class="pt-6 border-b border-slate-400 w-48 mx-auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
