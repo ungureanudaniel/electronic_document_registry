@@ -111,7 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 # Internationalization
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'localhost').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost').split(',')
+    if origin.strip()
+]
 
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
