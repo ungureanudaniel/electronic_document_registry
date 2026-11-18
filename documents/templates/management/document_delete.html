@@ -4,7 +4,7 @@
     <div class="bg-white p-8 rounded-2xl border border-red-200 shadow-sm space-y-6">
         <div>
             <h1 class="text-xl font-bold text-red-600">Confirmare Ștergere Securizată</h1>
-            <p class="text-sm text-slate-500 mt-1">Sunteți pe cale să ștergeți documentul <b>{{ document.reg_number }}</b>. Această acțiune este ireversibilă.</p>
+            <p class="text-sm text-slate-500 mt-1">Sunteți pe cale să ștergeți documentul <b>{{ document.reg_number }} din {{ document.timestamp|date:"d.m.Y" }}</b>. Această acțiune este ireversibilă.</p>
         </div>
 
         {% if messages %}

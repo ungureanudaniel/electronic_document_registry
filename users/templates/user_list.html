@@ -48,12 +48,12 @@
                                 <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Aprobă</button>
                             </form>
                         {% else %}
-                            <form method="post" action="{% url 'revoke_user' u.pk %}" class="inline">
+                            <form method="post" action="{% url 'revoke_user' user.pk %}" class="inline">
                                 {% csrf_token %}
                                 <button type="submit" class="bg-amber-600 text-white px-3 py-1 rounded text-xs hover:bg-amber-700">Revocă</button>
                             </form>
                         {% endif %}
-                        <form method="post" action="{% url 'delete_user' u.pk %}" class="inline" onsubmit="return confirm('Sigur doriți să ștergeți acest utilizator?');">
+                        <form method="post" action="{% url 'delete_user' user.pk %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">Șterge</button>
                         </form>

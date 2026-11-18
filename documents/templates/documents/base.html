@@ -19,6 +19,24 @@
 
             <!-- Dynamic Content Block -->
             <main class="flex-1 overflow-y-auto p-6">
+                <!-- Flash Messages -->
+                {% if messages %}
+                <div class="max-w-4xl mx-auto px-4 pt-4 space-y-2">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-xl border text-sm font-medium flex items-center justify-between
+                            {% if message.tags == 'error' %}
+                                bg-red-50 border-red-200 text-red-700
+                            {% elif message.tags == 'success' %}
+                                bg-emerald-50 border-emerald-200 text-emerald-700
+                            {% else %}
+                                bg-blue-50 border-blue-200 text-blue-700
+                            {% endif %}">
+                            <span>{{ message }}</span>
+                            <button type="button" onclick="this.parentElement.remove()" class="text-xs opacity-70 hover:opacity-100 ml-4">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% block content %}
                 {% endblock %}
             </main>

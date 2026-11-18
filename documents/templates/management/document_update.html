@@ -1,0 +1,206 @@
+{% extends 'documents/base.html' %}
+{% with active_page='documents_mgmt' %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header Pagina -->
+    <div class="border-b border-slate-200 pb-5 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Editare Document</h1>
+            <p class="text-sm text-slate-500 mt-1">Modificați metadatele documentului sau actualizați fișierul atașat.</p>
+        </div>
+        <a href="{% url 'document_management' %}" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-lg transition">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Înapoi la listă
+        </a>
+    </div>
+
+    <!-- Formular Editare -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm space-y-1">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Sectiune 1: Incarcare / Schimbare Fisier -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">1</span>
+                Fișierul documentului
+            </h2>
+
+            {% if object.file %}
+            <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <div class="flex items-center gap-2 truncate">
+                    <svg class="h-5 w-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="font-medium text-slate-700 truncate">Fișier curent: <a href="{{ object.file.url }}" target="_blank" class="text-blue-600 hover:underline">{{ object.file.name }}</a></span>
+                </div>
+                <span class="text-xs text-slate-400">Încărcați altul mai jos pentru a-l înlocui</span>
+            </div>
+            {% endif %}
+
+            <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/50 hover:bg-blue-50/30 rounded-xl p-8 text-center transition cursor-pointer relative group">
+                <input type="file" name="file" id="id_file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this)">
+                
+                <div class="flex flex-col items-center justify-center space-y-3">
+                    <div class="p-3 bg-white text-blue-600 rounded-full shadow-xs group-hover:scale-110 transition-transform">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800" id="file-label-title">Trageți noul fișier aici sau apăsați pentru a căuta</p>
+                        <p class="text-xs text-slate-400 mt-1" id="file-label-subtitle">Formate acceptate: PDF, DOCX, XLSX, PNG, JPG (Max. 50 MB)</p>
+                    </div>
+                </div>
+            </div>
+            {% if form.file.errors %}
+                <p class="text-xs text-red-600 mt-1">{{ form.file.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Sectiune 2: Detalii & Metadate -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">2</span>
+                Informații și identificare
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tip document -->
+                <div class="md:col-span-2 space-y-1">
+                    <label for="id_doc_type" class="block text-sm font-medium text-slate-700">Tip document <span class="text-red-500">*</span></label>
+                    <select name="doc_type" id="id_doc_type" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        {% for code, label in form.fields.doc_type.choices %}
+                            <option value="{{ code }}" {% if form.doc_type.value == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.doc_type.errors %}<p class="text-xs text-red-600">{{ form.doc_type.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Numar de înregistrare intern -->
+                <div class="space-y-1">
+                    <label for="{{ form.reg_number.id_for_label }}" class="block text-sm font-medium text-slate-700">Număr înregistrare intern</label>
+                    {{ form.reg_number }}
+                    {% if form.reg_number.errors %}<p class="text-xs text-red-600">{{ form.reg_number.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Dată de înregistrare internă -->
+                <div class="space-y-1">
+                    <label for="id_timestamp" class="block text-sm font-medium text-slate-700">Dată înregistrare internă</label>
+                    {{ form.timestamp }}
+                    {% if form.timestamp.errors %}<p class="text-xs text-red-600">{{ form.timestamp.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Numar de înregistrare expeditor -->
+                <div class="space-y-1">
+                    <label for="id_sender_reg_nr" class="block text-sm font-medium text-slate-700">Număr înregistrare expeditor</label>
+                    {{ form.sender_reg_nr }}
+                    {% if form.sender_reg_nr.errors %}<p class="text-xs text-red-600">{{ form.sender_reg_nr.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Dată de înregistrare expeditor -->
+                <div class="space-y-1">
+                    <label for="id_sender_reg_date" class="block text-sm font-medium text-slate-700">Dată înregistrare expeditor</label>
+                    {{ form.sender_reg_date }}
+                    {% if form.sender_reg_date.errors %}<p class="text-xs text-red-600">{{ form.sender_reg_date.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Continut document -->
+                <div class="md:col-span-2 space-y-1">
+                    <label for="id_description" class="block text-sm font-medium text-slate-700">Conținut document <span class="text-red-500">*</span></label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<p class="text-xs text-red-600">{{ form.description.errors.0 }}</p>{% endif %}
+                </div>
+                
+                <!-- Categorie -->
+                <div class="space-y-1">
+                    <label for="id_category" class="block text-sm font-medium text-slate-700">Categorie <span class="text-red-500">*</span></label>
+                    <select name="category" id="id_category" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        {% for c in form.fields.category.queryset %}
+                        <option value="{{ c.id }}" {% if form.category.value == c.id or form.instance.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.category.errors %}<p class="text-xs text-red-600">{{ form.category.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Expeditor -->
+                <div class="md:col-span-2 space-y-1">
+                    <label for="id_sender" class="block text-sm font-medium text-slate-700">Detalii proveniență document</label>
+                    {{ form.sender }}
+                    {% if form.sender.errors %}<p class="text-xs text-red-600">{{ form.sender.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Compartiment responsabil -->
+                <div class="md:col-span-2 space-y-1">
+                    <label for="id_responsible_compartment" class="block text-sm font-medium text-slate-700">Compartimentul căruia s-a repartizat documentul</label>
+                    <select name="responsible_compartment" id="id_responsible_compartment" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                    {% for code, label in form.fields.responsible_compartment.choices %}
+                        <option value="{{ code }}" {% if form.responsible_compartment.value == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                    </select>
+                    {% if form.responsible_compartment.errors %}<p class="text-xs text-red-600">{{ form.responsible_compartment.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Butoane de Actiune -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <a href="{% url 'document_management' %}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition">
+                Anulează
+            </a>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-xs flex items-center gap-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Salvează Modificările
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function updateFileName(input) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            const fileSize = (input.files[0].size / (1024 * 1024)).toFixed(2);
+            document.getElementById('file-label-title').textContent = fileName;
+            document.getElementById('file-label-subtitle').textContent = `Mărime: ${fileSize} MB - Pregătit pentru actualizare`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const docTypeSelect = document.getElementById('id_doc_type');
+        const senderInput = document.getElementById('id_sender');
+        const senderRegNrInput = document.getElementById('id_sender_reg_nr');
+        const senderRegDateInput = document.getElementById('id_sender_reg_date');
+
+        function toggleSenderFields() {
+            const isOutgoing = docTypeSelect.value === 'OUT'; 
+            const fieldsToToggle = [senderInput, senderRegNrInput, senderRegDateInput];
+
+            fieldsToToggle.forEach(field => {
+                if (field) {
+                    if (isOutgoing) {
+                        field.setAttribute('readonly', 'readonly');
+                        field.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                        field.classList.remove('bg-white', 'text-slate-900');
+                    } else {
+                        field.removeAttribute('readonly');
+                        field.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                        field.classList.add('bg-white', 'text-slate-900');
+                    }
+                }
+            });
+        }
+
+        if (docTypeSelect) {
+            toggleSenderFields();
+            docTypeSelect.addEventListener('change', toggleSenderFields);
+        }
+    });
+</script>
+{% endblock %}
+{% endwith %}

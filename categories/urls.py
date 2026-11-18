@@ -1,13 +1,14 @@
 from django.urls import path
-from .views import CategoryDeleteView, CategoryUpdateView, NewCategoryView
+
+from documents.views import SecureCategoryDeleteView
+from .views import CategoryManagementView, CategoryUpdateView
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('new_category/', NewCategoryView.as_view(), name='newcategory'),
-    path('category/<int:pk>/update/', CategoryUpdateView.as_view(), name='updatecategory'),
-    path('category/<int:pk>/delete/', CategoryDeleteView.as_view(), name='deletecategory'),
-
+    path('management/categories/', CategoryManagementView.as_view(), name='category_management'),
+    path('management/categories/update/<int:pk>/', CategoryUpdateView.as_view(), name='category_update'),
+    path('management/categories/<int:pk>/delete/', SecureCategoryDeleteView.as_view(), name='category_secure_delete'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

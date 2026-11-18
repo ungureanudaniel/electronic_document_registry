@@ -1,0 +1,63 @@
+{% extends 'documents/base.html' %}
+{% with active_page='category_management' %}
+
+{% block title %}Management Categorii Documente{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <h1 class="text-2xl font-bold text-slate-900">Management Categorii Documente</h1>
+    
+    <!-- Add Category Form -->
+    <form method="post" class="bg-white p-6 rounded-xl border border-slate-200 flex gap-4 shadow-xs">
+        {% csrf_token %}
+        <input type="text" name="name" required placeholder="Nume categorie nouă..." class="flex-1 px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">Adaugă Categorie</button>
+    </form>
+
+    <!-- List Categories -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase text-xs font-semibold">
+                <tr>
+                    <th class="px-6 py-3">Nume Categorie</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+                {% for cat in categories %}
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-6 py-4 font-medium text-slate-900">{{ cat.name }}</td>
+                    <td class="px-6 py-4">
+                        {% if cat.is_active %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                Activă / Aprobată
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800" title="Necesită aprobare">
+                                În așteptare (Pending)
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <!-- Edit Button -->
+                        <a href="{% url 'category_update' cat.pk %}" class="inline-flex items-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition">
+                            Editează
+                        </a>
+                        <!-- Delete Button -->
+                        <a href="{% url 'category_secure_delete' cat.pk %}" class="inline-flex items-center px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-xs font-medium transition">
+                            Șterge
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="px-6 py-8 text-center text-slate-400">Nu există categorii definite.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% endwith %}

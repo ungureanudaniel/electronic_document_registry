@@ -6,8 +6,10 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import DeleteView, ListView, CreateView, TemplateView
+from django.views.generic import DeleteView, ListView, CreateView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+from audit.models import DocumentAuditLog
 from .models import Document
 from categories.models import DocCategory
 from django.contrib import messages
@@ -130,16 +132,17 @@ class Dashboard(ApprovedRequiredMixin, TemplateView):
 
             stats = Document.objects.aggregate(
                 doc_count=Count('id'),
-                curr_year_doc_count=Count('id', filter=Q(timestamp__year=now.year)),
-                prev_year_doc_count=Count('id', filter=Q(timestamp__year=now.year - 1)),
-                current_month_count=Count('id', filter=Q(timestamp__gte=current_month_start)),
+                curr_year_count=Count('id', filter=Q(timestamp__year=now.year)),
+                prev_year_count=Count('id', filter=Q(timestamp__year=now.year - 1)),
+                curr_month_count=Count('id', filter=Q(timestamp__gte=current_month_start)),
                 prev_month_count=Count('id', filter=Q(timestamp__gte=prev_month_start, timestamp__lt=current_month_start)),
                 incoming_count=Count('id', filter=Q(doc_type='IN')),
                 outgoing_count=Count('id', filter=Q(doc_type='OUT')),
+                doc_types=Count('doc_type', distinct=True),
             )
             context.update(stats)
 
-            curr_m = stats['current_month_count']
+            curr_m = stats['curr_month_count']
             prev_m = stats['prev_month_count']
 
             if prev_m > 0:
@@ -149,9 +152,24 @@ class Dashboard(ApprovedRequiredMixin, TemplateView):
 
             _, duplicate_count = analyze_document_duplicates(Document.objects.all())
             context['duplicate_count'] = duplicate_count
-            context['categories'] = DocCategory.objects.all()
+            # aggregate category statistics
+            total_docs = stats['doc_count']
+            print(total_docs)
+            categories = DocCategory.objects.annotate(doc_count=Count('document'))
+            print(categories)
+            category_stats = []
+            for category in categories:
+                percentage = (category.doc_count / total_docs * 100) if total_docs > 0 else 0
+                category_stats.append({
+                    'name': category.name,
+                    'doc_count': category.doc_count,
+                    'percentage': round(percentage, 1),
+                    'is_active': category.is_active
+                })
+            
+            context['category_stats'] = sorted(category_stats, key=lambda x: x['doc_count'], reverse=True)
             context['active_page'] = 'dashboard'
-            print(context)
+            context['recent_documents'] = Document.objects.select_related('category').order_by('-timestamp', '-id')[:5]
             return context
 
 
@@ -162,8 +180,16 @@ class DocumentUploadView(ApprovedRequiredMixin, CreateView):
     form_class = DocumentForm
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         print("Formularul este valid! Se salvează documentul...")
-        return super().form_valid(form)
+        DocumentAuditLog.objects.create(
+            user=self.request.user,
+            action='CREATE',
+            document_reg_number=str(self.object.reg_number),
+            document_description=self.object.description,
+            details=f"Documentul a fost înregistrat în categoria {self.object.category.name if self.object.category else 'N/A'}."
+        )
+        return response
 
     def form_invalid(self, form):
         print("Câmpuri completate incorect sau lipsă:", form.errors)
@@ -183,16 +209,62 @@ class DocumentUploadView(ApprovedRequiredMixin, CreateView):
         return initial
 
 
-class CategoryManagementView(ApprovedRequiredMixin, TemplateView):
-    template_name = 'management/category_management.html'
+class DocumentUpdateView(ApprovedRequiredMixin, UpdateView):
+    template_name = 'management/document_update.html'
+    model = Document
+    form_class = DocumentForm
+    success_url = reverse_lazy('document_management')
+    
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['active_page'] = 'document_management'
+            return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        DocumentAuditLog.objects.create(
+            user=self.request.user,
+            action='UPDATE',
+            document_reg_number=str(self.object.reg_number),
+            document_description=self.object.description,
+            details=f"Documentul cu ID-ul {self.object.pk} a fost actualizat."
+        )
+        return response
+
+
+class SecureCategoryDeleteView(ApprovedRequiredMixin, DeleteView):
+    template_name = 'management/category_delete.html'
+    model = DocCategory
+    success_url = reverse_lazy('category_management')
+
+    def get_success_url(self):
+        return str(self.success_url) if self.success_url else '/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = DocCategory.objects.all().order_by('name')
         context['active_page'] = 'category_management'
+        context['categories'] = self.object
         return context
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        password = request.POST.get('admin_password') or ""
 
+        if request.user.is_staff and request.user.check_password(password):
+            DocumentAuditLog.objects.create(
+                user=request.user,
+                action='DELETE',
+                document_reg_number=str(self.object.reg_number),
+                document_description=self.object.description,
+                details=f"Documentul cu numărul {self.object.reg_number} a fost șters definitiv."
+            )
+            self.object.delete()
+            messages.success(request, "Categoria a fost ștearsă cu succes.")
+            return redirect(self.get_success_url())
+        else:
+            messages.error(request, "Parola introdusă este incorectă. Categoria nu a fost ștearsă.")
+            return self.render_to_response(self.get_context_data(object=self.object))
+    
 class DocumentManagementView(ApprovedRequiredMixin, ListView):
     template_name = 'management/documents_management.html'
 

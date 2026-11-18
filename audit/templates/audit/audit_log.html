@@ -1,0 +1,116 @@
+{% extends 'documents/base.html' %}
+{% with active_page='audit_logs' %}
+
+{% block title %}Jurnal Audit Sistem{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Jurnal Audit Sistem</h1>
+            <p class="text-sm text-slate-500 mt-1">Monitorizați acțiunile utilizatorilor (înregistrări, modificări și ștergeri).</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-lg transition">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Înapoi la dashboard
+        </a>
+    </div>
+
+    <!-- Audit Logs Table Container -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+        <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase font-semibold">
+                <tr>
+                    <th class="p-4">Dată & Ora</th>
+                    <th class="p-4">Utilizator</th>
+                    <th class="p-4">Acțiune</th>
+                    <th class="p-4">Număr / Entitate</th>
+                    <th class="p-4">Detalii</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for log in logs %}
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 font-mono text-slate-500 whitespace-nowrap">
+                        {{ log.timestamp|date:"d.m.Y H:i" }}
+                    </td>
+                    <td class="p-4 font-medium text-slate-900">
+                        {{ log.user.username|default:"Sistem / Anonim" }}
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        {% if log.action == 'CREATE' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                Înregistrare
+                            </span>
+                        {% elif log.action == 'UPDATE' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                Modificare
+                            </span>
+                        {% elif log.action == 'DELETE' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                Ștergere
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800">
+                                {{ log.get_action_display }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 font-mono font-semibold text-indigo-600">
+                        {{ log.document_reg_number|default:"-" }}
+                    </td>
+                    <td class="p-4 text-slate-700 max-w-md truncate" title="{{ log.details }}">
+                        {{ log.details|default:log.document_description }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-slate-400">Nu există înregistrări în jurnalul de audit.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        {% if is_paginated %}
+        <div class="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex flex-1 justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Anterior</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Următor</a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-xs text-slate-700">
+                        Afișare <span class="font-medium">{{ page_obj.start_index }}</span> - <span class="font-medium">{{ page_obj.end_index }}</span> din <span class="font-medium">{{ paginator.count }}</span> evenimente
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-md shadow-xs" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-slate-600 ring-1 ring-slate-300 ring-inset hover:bg-slate-50 font-medium text-xs">
+                                &larr; Anterior
+                            </a>
+                        {% endif %}
+                        
+                        <span class="relative inline-flex items-center px-4 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-300 ring-inset bg-slate-50">
+                            Pagina {{ page_obj.number }} din {{ page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-slate-600 ring-1 ring-slate-300 ring-inset hover:bg-slate-50 font-medium text-xs">
+                                Următor &rarr;
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% endwith %}

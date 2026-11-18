@@ -29,7 +29,7 @@
                     <td class="px-6 py-4 truncate max-w-xs">{{ doc.description }}</td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <!-- Link to edit if you have an update view -->
-                        <a href="#" class="text-blue-600 hover:underline">Editează</a>
+                        <a href="{% url 'document_update' doc.pk %}" class="text-blue-600 hover:underline">Editează</a>
                         <a href="{% url 'document_secure_delete' doc.pk %}" class="text-red-600 hover:underline">Șterge</a>
                     </td>
                 </tr>

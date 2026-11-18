@@ -17,13 +17,16 @@
 
             <div id="management-menu" class="hidden pl-4 space-y-1">
                 <a href="{% url 'category_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'category_management' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
-                    • Management categorii documente
+                    Management categorii documente
                 </a>
                 <a href="{% url 'document_management' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'document_management' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
-                    • Management documente
+                    Management documente
                 </a>
                 <a href="{% url 'userlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'user_list' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
-                    • Management utilizatori
+                    Management utilizatori
+                </a>
+                <a href="{% url 'audit_log' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs {% if active_page == 'audit_logs' %}bg-slate-800 text-white{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+                    Audit activitate aplicație
                 </a>
             </div>
         </div>
@@ -63,7 +66,7 @@ function toggleManagementDropdown() {
 document.addEventListener('DOMContentLoaded', function() {
     const activePage = "{{ active_page }}";
     
-    const managementPages = ['categories', 'document_mgmt', 'category_management', 'document_management', 'userlist', 'user_list'];
+    const managementPages = ['categories', 'document_mgmt', 'category_management', 'document_management', 'userlist', 'user_list', 'audit_logs'];
     
     if (managementPages.includes(activePage)) {
         const menu = document.getElementById('management-menu');
