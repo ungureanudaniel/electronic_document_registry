@@ -1,6 +1,7 @@
 from typing import Any
 from difflib import SequenceMatcher
-from django.db.models import Q, Count
+from django.db import transaction
+from django.db.models import Q, Count, Max
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
@@ -180,7 +181,24 @@ class DocumentUploadView(ApprovedRequiredMixin, CreateView):
     form_class = DocumentForm
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        with transaction.atomic():
+            doc = form.instance
+
+            reg_year = doc.reg_year or (
+                doc.timestamp.year if doc.timestamp else timezone.localdate().year
+                )
+            doc.reg_year = reg_year
+
+            if not doc.reg_number:
+                last_reg = (
+                    Document.objects.select_for_update()
+                    .filter(reg_year=reg_year)
+                    .aggregate(max_num=Max('reg_number'))['max_num']
+                )
+                print(f"Ultimul număr de înregistrare pentru anul {reg_year}: {last_reg}")
+                doc.reg_number = (last_reg or 0) + 1
+                
+            response = super().form_valid(form)
         print("Formularul este valid! Se salvează documentul...")
         DocumentAuditLog.objects.create(
             user=self.request.user,
