@@ -6,4 +6,5 @@ from .models import Document
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ['reg_number', 'timestamp', 'doc_type']
     search_fields = ('reg_number', 'timestamp', 'doc_type')
+    ordering = ['-reg_number']
     
